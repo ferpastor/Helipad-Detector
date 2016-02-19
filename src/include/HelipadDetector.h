@@ -31,7 +31,7 @@ class HelipadDetector {
 
 	int perimeter(vector< Point > &a);
 
-	bool FindHelipad(const Mat &in);
+	bool FindHelipad(const Mat &in, bool &rotated);
 
 	bool GetFrontHeliCandidate(Mat &in, Mat &out, Size size, vector< Point > points) throw(cv::Exception);
 
@@ -39,7 +39,7 @@ class HelipadDetector {
 
 	int detect(Mat source, vector < vector < Point > > Helipads);
 
-	void GetPose(float markerSizeMeters, cv::Mat camMatrix, cv::Mat distCoeff, Mat Rvec, Mat Tvec, vector < Point > Helipad);
+	void GetPose(float markerSizeX, float markerSizeY, cv::Mat camMatrix, cv::Mat distCoeff, Mat Rvec, Mat Tvec, vector < Point > Helipad);
 
 	Mat set_P_matrix(Mat _R_matrix, Mat t_matrix);
 

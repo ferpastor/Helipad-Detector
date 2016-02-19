@@ -29,6 +29,8 @@ int Twh = 31; //Height of the white square
 int Tww = 28; //Widht of the white square
 int Mhw = 6; //Height of the white "line" under the "H"
 int Mww = 7; //Widht of the other white "line"
+int Hw = 37; //Widht of the "H"
+int Hsw = 5; //with of the H's vertical lines
 
 
 int _thresParam1_range = 0; //used for the threshold step
@@ -39,7 +41,8 @@ double _maxSize = 0.5; //used to identify candidate markers
 
 float tooNearCandidatesDistance = 10; //Used to remove too near marker candidates.
 
-float markerSize = 0.096;
+float markerSizeX = 0.096;
+float markerSizeY = 0.091;
 
 Mat CamMatrix(3, 3, CV_32FC1);
 
@@ -92,7 +95,7 @@ int HelipadDetector::perimeter(vector< Point > &a) {
     return sum;
 }
 
-bool HelipadDetector::FindHelipad(const Mat &in) { //, int &nRotations) {
+bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRotations) {
 
     assert(in.rows == in.cols);
     Mat grey;
@@ -151,7 +154,73 @@ bool HelipadDetector::FindHelipad(const Mat &in) { //, int &nRotations) {
            }
        }
    }
-   return true; //TODO Comprobar la H
+
+   //TODO: probar rotaciones de los puntos del helipad
+   rotated = false;
+   bool finded = true;
+
+   Mat H = InBorder(Rect(divisionsW, divisionsH, InBorder.rows - 2*divisionsW, InBorder.cols - 2*divisionsW));
+   //imshow("H", H);
+   int nDivh = Hw/Hsw;
+   int divisionsWH = H.cols / nDivh;
+   for(int x = 0; x < nDivh; x++)
+   {
+       int Xstart = (x) * (divisionsWH);
+       int Ystart = 0;
+       Mat square = H(Rect(Xstart, Ystart, divisionsWH, H.cols));
+       int nz = countNonZero(square);
+       if (x == 0 || x == nDivh -1)
+       {
+           if (nz > (divisionsWH * H.cols) / 2)
+           {
+               finded = false;
+               break; //left or right lines (|-|) of the H don't exist!
+           }
+       }
+       else
+       {
+           if (nz < (divisionsWH * H.cols) / 2)
+           {
+               finded = false;
+               break;
+           }
+       }
+   }
+
+   if(!finded)
+   {
+       rotated = true;
+       Point2f Centre(InBorder.cols/2.0F, InBorder.rows/2.0F);
+       Mat rot_mat = getRotationMatrix2D(Centre, 90, 1.0);
+       Mat newInBorder;
+       warpAffine(InBorder, newInBorder, rot_mat, InBorder.size());
+
+       H = newInBorder(Rect(divisionsW, divisionsH, newInBorder.rows - 2*divisionsW, newInBorder.cols - 2*divisionsW));
+       //imshow("rotH", H);
+       nDivh = Hw/Hsw;
+       divisionsWH = H.cols / nDivh;
+       for(int x = 0; x < nDivh; x++)
+       {
+           int Xstart = (x) * (divisionsWH);
+           int Ystart = 0;
+           Mat square = H(Rect(Xstart, Ystart, divisionsWH, H.cols));
+           int nz = countNonZero(square);
+           if (x == 0 || x == nDivh -1)
+           {
+               if (nz > (divisionsWH * H.cols) / 2)
+                   return false; //left and right lines (|-|) of the H don't exist!
+           }
+           else
+           {
+               if (nz < (divisionsWH * H.cols) / 2)
+                   return false;
+           }
+       }
+   }
+
+   imshow("H", H);
+
+   return true;
 
 }
 
@@ -284,12 +353,17 @@ void HelipadDetector::detectRectangles(Mat &thresImgv, vector< vector< Point > >
     }
 }
 
-void HelipadDetector::GetPose(float markerSizeMeters, cv::Mat camMatrix, cv::Mat distCoeff, Mat Rvec, Mat Tvec, vector < Point >  Helipad) //, bool setYPerpendicular)
+void HelipadDetector::GetPose(float markerSizeX, float markerSizeY, cv::Mat camMatrix, cv::Mat distCoeff, Mat Rvec, Mat Tvec, vector < Point >  Helipad) //, bool setYPerpendicular)
 {
 
-    if (markerSizeMeters <= 0)
+    if (markerSizeX <= 0)
     {
-        cout << "Marker size must be grater than 0" << endl;
+        cout << "Marker X dimension size must be grater than 0" << endl;
+        return;
+    }
+    if (markerSizeY <= 0)
+    {
+        cout << "Marker Y simension size must be grater than 0" << endl;
         return;
     }
     if (camMatrix.rows == 0 || camMatrix.cols == 0)
@@ -298,19 +372,20 @@ void HelipadDetector::GetPose(float markerSizeMeters, cv::Mat camMatrix, cv::Mat
         return;
     }
 
-    double halfSize = markerSizeMeters / 2.;
+    double halfSizeX = markerSizeX / 2.;
+    double halfSizeY = markerSizeY / 2;
     Mat ObjPoints(4, 3, CV_32FC1);
-    ObjPoints.at< float >(1, 0) = -halfSize;
-    ObjPoints.at< float >(1, 1) = halfSize;
+    ObjPoints.at< float >(1, 0) = -halfSizeX;
+    ObjPoints.at< float >(1, 1) = halfSizeY;
     ObjPoints.at< float >(1, 2) = 0;
-    ObjPoints.at< float >(2, 0) = halfSize;
-    ObjPoints.at< float >(2, 1) = halfSize;
+    ObjPoints.at< float >(2, 0) = halfSizeX;
+    ObjPoints.at< float >(2, 1) = halfSizeY;
     ObjPoints.at< float >(2, 2) = 0;
-    ObjPoints.at< float >(3, 0) = halfSize;
-    ObjPoints.at< float >(3, 1) = -halfSize;
+    ObjPoints.at< float >(3, 0) = halfSizeX;
+    ObjPoints.at< float >(3, 1) = -halfSizeY;
     ObjPoints.at< float >(3, 2) = 0;
-    ObjPoints.at< float >(0, 0) = -halfSize;
-    ObjPoints.at< float >(0, 1) = -halfSize;
+    ObjPoints.at< float >(0, 0) = -halfSizeX;
+    ObjPoints.at< float >(0, 1) = -halfSizeY;
     ObjPoints.at< float >(0, 2) = 0;
 
     cv::Mat ImagePoints(4, 2, CV_32FC1);
@@ -421,13 +496,36 @@ int HelipadDetector::detect(Mat source, vector < vector < Point > > Helipads)
 
                       //imshow("HelipadCandidate", CannonicalMarker);
                       bool success;
-                      success = FindHelipad(CannonicalMarker);
+                      bool rotated;
+                      success = FindHelipad(CannonicalMarker, rotated);
                       if (success)
                       {
-                          drawContours(imgOriginal, MarkerCanditates[i]);
-                          imshow("HelipadCandidate", CannonicalMarker);
-                          Helipads.push_back(MarkerCanditates[i]);
-                          nHelis ++;
+                          if(!rotated)
+                          {
+                              drawContours(imgOriginal, MarkerCanditates[i]);
+                              imshow("HelipadCandidate", CannonicalMarker);
+                              Helipads.push_back(MarkerCanditates[i]);
+                              nHelis ++;
+                              break;
+                          }
+                          else
+                          {
+                              Point temp = MarkerCanditates[i][0];
+                              MarkerCanditates[i][0] = MarkerCanditates[i][1];
+                              MarkerCanditates[i][1] = MarkerCanditates[i][2];
+                              MarkerCanditates[i][2] = MarkerCanditates[i][3];
+                              MarkerCanditates[i][3] = temp;
+                              noError = GetFrontHeliCandidate(grey, CannonicalMarker, Size(_markerWarpSize, _markerWarpSize), MarkerCanditates[i] );
+                              if (noError)
+                              {
+                                  drawContours(imgOriginal, MarkerCanditates[i]);
+                                  threshold(CannonicalMarker, CannonicalMarker, 125, 255, THRESH_BINARY | THRESH_OTSU);
+                                  imshow("HelipadCandidate", CannonicalMarker);
+                                  Helipads.push_back(MarkerCanditates[i]);
+                                  nHelis ++;
+                                  break;
+                              }
+                          }
                       }
 
                   }
@@ -440,12 +538,12 @@ int HelipadDetector::detect(Mat source, vector < vector < Point > > Helipads)
               Tvec = Mat::zeros(3, 1, CV_32FC1);
               Rvec = Mat::zeros(3, 1, CV_32FC1);
 
-              if (nHelis != 0)
+              if (nHelis == 1)
               {
                  for (int k = 0; k < Helipads.size(); k++)
                  {
-                     GetPose(markerSize, CamMatrix, DistMatrix, Rvec, Tvec, Helipads[k]);
-                     Mat RMat = Mat::zeros(3, 3, CV_32FC1);
+                     GetPose(markerSizeX, markerSizeY, CamMatrix, DistMatrix, Rvec, Tvec, Helipads[k]);
+                     //Mat RMat = Mat::zeros(3, 3, CV_32FC1);
 
                      /*/Arreglar, no funciona desde aquí...
                      Rodrigues(Rvec,RMat);
@@ -453,6 +551,28 @@ int HelipadDetector::detect(Mat source, vector < vector < Point > > Helipads)
                      // Set projection matrix
                      Mat Pose = set_P_matrix(RMat, Tvec);
                      */
+
+                     cout << "Pixel Coordinates in the image of the helipad:" << endl;
+                     cout << "corner 1: X = " << Helipads[k][0].x << " Y = " << Helipads[k][0].y << endl;
+                     cout << "corner 2: X = " << Helipads[k][1].x << " Y = " << Helipads[k][1].y << endl;
+                     cout << "corner 3: X = " << Helipads[k][2].x << " Y = " << Helipads[k][2].y << endl;
+                     cout << "corner 4: X = " << Helipads[k][3].x << " Y = " << Helipads[k][3].y << endl;
+                     cout<< "" << endl;
+                     cout<< "" << endl;
+
+                     cout << "Pose:" << endl;
+                     cout << "x = " << Tvec.at<double>(0) << endl;
+                     cout << "y = " << Tvec.at<double>(1) << endl;
+                     cout << "z = " << Tvec.at<double>(2) << endl;
+                     cout << "a = " << Rvec.at<double>(0) << endl;
+                     cout << "b = " << Rvec.at<double>(1) << endl;
+                     cout << "c = " << Rvec.at<double>(2) << endl;
+                     cout<< "" << endl;
+                     cout<< "" << endl;
+                     cout<< "" << endl;
+                     cout<< "" << endl;
+
+
                  }
               }
 
