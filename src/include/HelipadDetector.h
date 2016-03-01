@@ -29,6 +29,10 @@ class HelipadDetector {
 
 	void drawContours(Mat image, vector<Point> TheApproxCurve);
 
+	void drawPoints(Mat image, vector<Point> TheApproxMarker);
+
+	bool read();
+
 	int perimeter(vector< Point > &a);
 
 	bool FindHelipad(const Mat &in, bool &rotated);
@@ -39,7 +43,7 @@ class HelipadDetector {
 
 	int detect(Mat source, vector < vector < Point > > Helipads);
 
-	void GetPose(float markerSizeX, float markerSizeY, cv::Mat camMatrix, cv::Mat distCoeff, Mat Rvec, Mat Tvec, vector < Point > Helipad);
+	void GetPose(float markerSizeX, float markerSizeY, cv::Mat camMatrix, cv::Mat distCoeff, Mat &Rvec, Mat &Tvec, vector < Point > Helipad);
 
 	Mat set_P_matrix(Mat _R_matrix, Mat t_matrix);
 

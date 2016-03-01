@@ -29,9 +29,13 @@ class HelipadDetector {
 
 	void drawContours(Mat image, vector<Point> TheApproxCurve);
 
+	void drawPoints(Mat image, vector<Point> TheApproxMarker);
+
+	bool read();
+
 	int perimeter(vector< Point > &a);
 
-	bool FindHelipad(const Mat &in, bool rotated);
+	bool FindHelipad(const Mat &in, bool &rotated);
 
 	bool GetFrontHeliCandidate(Mat &in, Mat &out, Size size, vector< Point > points) throw(cv::Exception);
 

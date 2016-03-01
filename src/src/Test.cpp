@@ -64,7 +64,6 @@ using namespace heli;
      }
 
     //cout << nHelis <<endl;
-
     return 0;
 
  }
