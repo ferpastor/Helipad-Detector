@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<Settings>
+
+	//Params for the threshold
+	<_thresParam1>7</_thresParam1>
+
+	//this one is only used in the adaptative threshold.
+	<_thresParam2>7</_thresParam2>
+
+	// 2: Adaptative threshold
+	<thresMethod>2</thresMethod>
+
+	//This Param must be measured in the real Helipad. It represents the total height
+	//The units are not important, just keep in mind you must use the same ones you are going to use in all the measurements.
+	<Th>39</Th>
+
+	//Total widht
+	<Tw>37</Tw>
+
+	//The height of the black line under the "H"
+	<Mhb>4</Mhb>
+
+	//The widht of the other black line
+	<Mwb>4</Mwb>
+
+	//Height of the white square
+	<Twh>31</Twh>
+
+	//Widht of the white square
+	<Tww>28</Tww>
+
+	//Height of the white "line" under the "H"
+	<Mhw>6</Mhw>
+
+	//Widht of the other white "line"
+	<Mww>7</Mww>
+
+	//Widht of the "H"
+	<Hw>37</Hw>
+
+	//with of the H's vertical lines
+	<Hsw>5</Hsw>
+
+	//used for the threshold step
+	<_thresParam1_range>0</_thresParam1_range>
+
+	 //Size of the columns and rows of the Cannonical Marker Image
+	<_markerWarpSize>250</_markerWarpSize>
+
+	//used to identify candidate markers (minimun size)
+	<_minSize>0.04</_minSize>
+
+	//used to identify candidate markers
+	<_maxSize>0.5</_maxSize>
+
+	//Used to remove too near marker candidates.
+	<tooNearCandidatesDistance>10</tooNearCandidatesDistance>
+
+	//Size of the Marker.
+	<markerSizeX>0.096</markerSizeX>
+	<markerSizeY>0.091</markerSizeY>
+
+	// corners in a border of 2.5% of image  are ignored
+	<_borderDistThres>0.025</_borderDistThres>
+</Settings>
+</opencv_storage>

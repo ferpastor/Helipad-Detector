@@ -1,0 +1,32 @@
+<package>
+	<name>HelipadDetector</name>
+	<version>1.0.0</version>
+	<description>
+    		This package is HelipadDetector.
+	</description>
+	<author email="ferpastor92@gmail.com">Fernando Pastor Durantez</author>
+	<maintainer email="ferpastor92@gmail.com">Fernando Pastor Durantez</maintainer>
+  	<license>BSD</license>
+	<url></url>
+
+  	<buildtool_depend>catkin</buildtool_depend>
+
+
+  	<build_depend>roscpp</build_depend>
+	<build_depend>image_transport</build_depend>
+	<build_depend>cv_bridge</build_depend>
+	<build_depend>droneMsgsROS</build_depend>
+	<build_depend>droneModuleROS</build_depend>
+	<build_depend>referenceFrames</build_depend>
+
+
+	<run_depend>roscpp</run_depend>
+	<run_depend>image_transport</run_depend>
+	<run_depend>cv_bridge</run_depend>
+	<run_depend>droneMsgsROS</run_depend>
+	<run_depend>droneModuleROS</run_depend>
+	<run_depend>referenceFrames</run_depend>
+
+</package>
+
+

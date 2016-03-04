@@ -1,0 +1,30 @@
+<!-- Launches: HelipadDetector -->
+<launch>
+	
+	<arg name="drone_id_namespace"  default="drone0" />
+	<arg name="drone_id_int" 	default="0" />
+	<arg name="my_stack_directory" 	default="$(env DRONE_STACK)" />
+
+	<arg name="HelipadDetector_name" 	default="HelipadDetector" />
+
+  <arg name="drone_configuration_file" 	default="droneConfiguration.xml" />
+  <arg name="camera_number" 	default="0" />
+
+  <arg name="drone_image_topic_name" 	default="camera/front/image_raw" />
+  <arg name="drone_aruco_list_topic_name" 	default="arucoObservation" />
+
+	<group ns="$(arg drone_id_namespace)">
+		<node name="$(HelipadDetector_name)" pkg="HelipadDetector" type="HelipadDetector" output="screen">
+
+			<param name="droneId" value="$(arg drone_id_int)" type="int"/>
+			<param name="stackPath" value="$(arg my_stack_directory)" type="string"/>
+
+      <param name="drone_configuration_file" value="$(arg drone_configuration_file)" type="string"/>
+      <param name="camera_number" value="$(arg camera_number)" type="int"/>
+
+      <param name="drone_image_topic_name" value="$(arg drone_image_topic_name)" type="string"/>
+      <param name="drone_aruco_list_topic_name" value="$(arg drone_aruco_list_topic_name)" type="string"/>
+
+		</node>
+	</group>
+</launch>
