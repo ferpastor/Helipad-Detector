@@ -312,14 +312,22 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
    int divisionsH = grey.rows / nDivH;
    int nDiv = Tw/Mwb;
    int divisionsW = grey.cols / nDiv;
+
    for (int y = 0; y < nDivH; y++) {
        int inc = nDiv - 1;
-       if (y == 0 || y == nDiv - 1)
+       if (y == 0 || y == nDivH - 1)
            inc = 1; // for first and last row, check the whole border
        for (int x = 0; x < nDiv; x += inc) {
            int Xstart = (x) * (divisionsW);
            int Ystart = (y) * (divisionsH);
            Mat square = grey(Rect(Xstart, Ystart, divisionsW, divisionsH));
+           /* Draw regions
+           rectangle( grey,
+                      Rect(Xstart, Ystart, divisionsW, divisionsH),
+                      Scalar( 255, 255, 255 ),
+                      2);
+           imshow("thres Helipad Cand", grey);
+           */
            int nZ = countNonZero(square);
            if (nZ > (divisionsW * divisionsH) / 2) {
                return false; // can not be a helipad because the border element is not black!
@@ -329,7 +337,7 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
    //imshow("External Border OK", grey);
 
    // Inner Border
-   Mat InBorder = grey(Rect(divisionsW, divisionsH, grey.rows - 2*divisionsW, grey.cols - 2*divisionsW));
+   Mat InBorder = grey(Rect(divisionsW, divisionsH, grey.cols - 2*divisionsW, grey.rows - 2*divisionsH));
    //imshow("in border", InBorder);
    nDivH = Twh/Mhw;
    divisionsH = InBorder.rows / nDivH;
@@ -337,12 +345,19 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
    divisionsW = InBorder.cols / nDiv;
    for (int y = 0; y < nDivH; y++) {
        int inc = nDiv - 1;
-       if (y == 0 || y == nDiv - 1)
+       if (y == 0 || y == nDivH - 1)
            inc = 1; // for first and last row, check the whole border
        for (int x = 0; x < nDiv; x += inc) {
            int Xstart = (x) * (divisionsW);
            int Ystart = (y) * (divisionsH);
            Mat square = InBorder(Rect(Xstart, Ystart, divisionsW, divisionsH));
+           /* Draw Regions
+           rectangle( InBorder,
+                      Rect(Xstart, Ystart, divisionsW, divisionsH),
+                      Scalar( 0, 255, 255 ),
+                      2);
+           imshow("in border", InBorder);
+           */
            int nZ = countNonZero(square);
            if (nZ < (divisionsW * divisionsH) / 2) {
                return false; // can not be a helipad because the second border element is not white!
@@ -353,7 +368,7 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
    rotated = false;
    bool finded = true;
 
-   Mat H = InBorder(Rect(divisionsW, divisionsH, InBorder.rows - 2*divisionsW, InBorder.cols - 2*divisionsW));
+   Mat H = InBorder(Rect(divisionsW, divisionsH, InBorder.cols - 2*divisionsW, InBorder.rows - 2*divisionsH));
    //imshow("H", H);
    int nDivh = Hw/Hsw;
    int divisionsWH = H.cols / nDivh;
@@ -361,11 +376,19 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
    {
        int Xstart = (x) * (divisionsWH);
        int Ystart = 0;
-       Mat square = H(Rect(Xstart, Ystart, divisionsWH, H.cols));
+       Mat square = H(Rect(Xstart, Ystart, divisionsWH, H.rows));
+       // Draw Regions
+       /*
+       rectangle( H,
+                  Rect(Xstart, Ystart, divisionsWH, H.rows),
+                  Scalar( 0, 255, 255 ),
+                  2);
+       imshow("H", H);
+       */
        int nz = countNonZero(square);
        if (x == 0 || x == nDivh -1)
        {
-           if (nz > (divisionsWH * H.cols) / 2)
+           if (nz > (divisionsWH * H.rows) / 2)
            {
                finded = false;
                break; //left or right lines (|-|) of the H don't exist!
@@ -373,7 +396,7 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
        }
        else
        {
-           if (nz < (divisionsWH * H.cols) / 2)
+           if (nz < (divisionsWH * H.rows) / 2)
            {
                finded = false;
                break;
@@ -389,7 +412,7 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
        Mat newInBorder;
        warpAffine(InBorder, newInBorder, rot_mat, InBorder.size());
 
-       H = newInBorder(Rect(divisionsW, divisionsH, newInBorder.rows - 2*divisionsW, newInBorder.cols - 2*divisionsW));
+       H = newInBorder(Rect(divisionsW, divisionsH, newInBorder.cols - 2*divisionsW, newInBorder.rows - 2*divisionsH));
        //imshow("rotH", H);
        nDivh = Hw/Hsw;
        divisionsWH = H.cols / nDivh;
@@ -397,16 +420,23 @@ bool HelipadDetector::FindHelipad(const Mat &in, bool &rotated) { //, int &nRota
        {
            int Xstart = (x) * (divisionsWH);
            int Ystart = 0;
-           Mat square = H(Rect(Xstart, Ystart, divisionsWH, H.cols));
+           Mat square = H(Rect(Xstart, Ystart, divisionsWH, H.rows));
+           // Draw Regions
+           /*rectangle( H,
+                      Rect(Xstart, Ystart, divisionsWH, H.rows),
+                      Scalar( 0, 255, 255 ),
+                      2);
+           imshow("H", H);
+            */
            int nz = countNonZero(square);
            if (x == 0 || x == nDivh -1)
            {
-               if (nz > (divisionsWH * H.cols) / 2)
+               if (nz > (divisionsWH * H.rows) / 2)
                    return false; //left and right lines (|-|) of the H don't exist!
            }
            else
            {
-               if (nz < (divisionsWH * H.cols) / 2)
+               if (nz < (divisionsWH * H.rows) / 2)
                    return false;
            }
        }
