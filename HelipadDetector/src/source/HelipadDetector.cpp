@@ -93,11 +93,11 @@ HelipadDetector::HelipadDetector(): DroneModule(droneModule::active,DRONE_HELIPA
     CamMatrix.at < float > (2, 1) = 0;
     CamMatrix.at < float > (2, 2) = 1;
 
-    CamMatrix.at < float > (0, 0) = 7.7515813387338650e-02;
-    CamMatrix.at < float > (0, 1) = 2.8459888465880390e-01;
-    CamMatrix.at < float > (0, 2) = 0;
-    CamMatrix.at < float > (0, 3) = 0;
-    CamMatrix.at < float > (0, 4) = -2.5553636828393729e+00;
+    DistMatrix.at < float > (0, 0) = 7.7515813387338650e-02;
+    DistMatrix.at < float > (0, 1) = 2.8459888465880390e-01;
+    DistMatrix.at < float > (0, 2) = 0;
+    DistMatrix.at < float > (0, 3) = 0;
+    DistMatrix.at < float > (0, 4) = -2.5553636828393729e+00;
 
     return;
 }
