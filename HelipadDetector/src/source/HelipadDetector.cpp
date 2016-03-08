@@ -15,6 +15,7 @@
 #include <time.h>
 #include <opencv2/core.hpp>
 #include <opencv2/core/utility.hpp>
+#include "pugixml.hpp"
 
 using namespace cv;
 using namespace std;
@@ -77,27 +78,11 @@ bool _useLockedCorners = false;
 
 //TODO Leer estos parámetros desde fichero.
 
-////////// Drone Aruco Eye ///////////
 HelipadDetector::HelipadDetector(): DroneModule(droneModule::active,DRONE_HELIPAD_EYE_RATE)
 {
     init();
 
-    // TODO Leer parámetros de cámara desde fichero
-    CamMatrix.at < float > (0, 0) = 6.8966032179638808e+02;
-    CamMatrix.at < float > (0, 1) = 0;
-    CamMatrix.at < float > (0, 2) = 3.1950000000000000e+02;
-    CamMatrix.at < float > (1, 0) = 0;
-    CamMatrix.at < float > (1, 1) = 6.8966032179638808e+02;
-    CamMatrix.at < float > (1, 2) = 2.3950000000000000e+02;
-    CamMatrix.at < float > (2, 0) = 0;
-    CamMatrix.at < float > (2, 1) = 0;
-    CamMatrix.at < float > (2, 2) = 1;
-
-    DistMatrix.at < float > (0, 0) = 7.7515813387338650e-02;
-    DistMatrix.at < float > (0, 1) = 2.8459888465880390e-01;
-    DistMatrix.at < float > (0, 2) = 0;
-    DistMatrix.at < float > (0, 3) = 0;
-    DistMatrix.at < float > (0, 4) = -2.5553636828393729e+00;
+    readParameters();
 
     return;
 }
@@ -107,6 +92,52 @@ HelipadDetector::~HelipadDetector()
 {
     close();
     return;
+}
+
+int HelipadDetector::readParameters()
+{
+    pugi::xml_document doc;
+
+    pugi::xml_parse_result result = doc.load_file("config.xml");
+    if(!result)
+    {
+        cout << "ERROR: Could not load the file: " << result.description() << endl;
+        return 0;
+    }
+
+    pugi::xml_node Configuration = doc.child("Configuration");
+    std::string readingValue;
+    // Read values for the Camera Matrix
+    readingValue = Configuration.child("CameraMatrix").child_value("at00");
+    CamMatrix.at < float > (0, 0) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at01");
+    CamMatrix.at < float > (0, 1) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at02");
+    CamMatrix.at < float > (0, 2) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at10");
+    CamMatrix.at < float > (1, 0) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at11");
+    CamMatrix.at < float > (1, 1) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at12");
+    CamMatrix.at < float > (1, 2) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at20");
+    CamMatrix.at < float > (2, 0) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at21");
+    CamMatrix.at < float > (2, 1) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("CameraMatrix").child_value("at22");
+    CamMatrix.at < float > (2, 2) = (float)atof(readingValue.c_str());
+
+    readingValue = Configuration.child("DistMatrix").child_value("at0");
+    DistMatrix.at < float > (0, 0) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("DistMatrix").child_value("at1");
+    DistMatrix.at < float > (0, 1) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("DistMatrix").child_value("at2");
+    DistMatrix.at < float > (0, 2) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("DistMatrix").child_value("at3");
+    DistMatrix.at < float > (0, 3) = (float)atof(readingValue.c_str());
+    readingValue = Configuration.child("DistMatrix").child_value("at4");
+    DistMatrix.at < float > (0, 4) = (float)atof(readingValue.c_str());
+
 }
 
 void HelipadDetector::init()

@@ -23,6 +23,8 @@ using namespace heli;
 
          Mat inImage;
 
+         HelipadDetector Detector;
+
          VideoCapture Cap(0);
 
          if(!Cap.isOpened())
@@ -43,7 +45,7 @@ using namespace heli;
 
              vector < vector < Point > > Helipad;
 
-             HelipadDetector Detector;
+             //HelipadDetector Detector;
 
              int nHelis = 0;
 

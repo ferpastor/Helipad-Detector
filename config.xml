@@ -1,0 +1,20 @@
+<Configuration>
+	<CameraMatrix>
+		<at00>689.66032179638808</at00>
+		<at01>0</at01>
+		<at02>319.5</at02>
+		<at10>0</at10>
+		<at11>689.66032179638808</at11>
+		<at12>239.5</at12>
+		<at20>0</at20>
+		<at21>0</at21>
+		<at22>1</at22>
+	</CameraMatrix>	
+	<DistMatrix>
+		<at0>0.077515813387338650</at0>
+		<at1>0.28459888465880390</at1>
+		<at2>0</at2>
+		<at3>0</at3>
+		<at4>-2.5553636828393729</at4>
+	</DistMatrix>
+</Configuration>

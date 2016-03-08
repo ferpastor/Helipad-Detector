@@ -14,6 +14,7 @@
 #include <valarray>
 #include <fstream>
 
+
 using namespace cv;
 using namespace std;
 
@@ -26,6 +27,8 @@ class HelipadDetector {
 	HelipadDetector();
 
 	~HelipadDetector();
+
+	int readParameters();
 
 	void drawContours(Mat image, vector<Point> TheApproxCurve);
 

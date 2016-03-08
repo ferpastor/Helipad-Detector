@@ -14,6 +14,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <valarray>
 #include <fstream>
+#include "pugixml.hpp"
 
 //ROS
 #include "ros/ros.h"
@@ -104,6 +105,8 @@ class HelipadDetector : public DroneModule {
 	HelipadDetector();
 
 	~HelipadDetector();
+
+	int readParameters();
 
         int setInputImage(Mat InputImageIn);
 
