@@ -21,63 +21,11 @@
 using namespace cv;
 using namespace std;
 
-int _thresParam1 = 7; //Params for the threshold
-int _thresParam2 = 7; //this one is only used in the adaptative threshold.
-int thresMethod = 3; // 2: Adaptative threshold
-
-/*
-int Th = 39;//This Param must be measured in the real Helipad. It represents the total height
-           //The units are not important, just keep in mind you must use the same ones you are going to use in all the measurements.
-int Tw = 37;//Total width
-int Mhb = 4;//The height of the black line under the "H"
-int Mwb = 4;//The width of the other black line
-
-int Twh = 31; //Height of the white square
-int Tww = 28; //width of the white square
-int Mhw = 6; //Height of the white "line" under the "H"
-int Mww = 7; //width of the other white "line"
-int Hw = 37; //width of the "H"
-int Hsw = 5; //width of the H's vertical lines
-*/
-
-int Th = 96;//This Param must be measured in the real Helipad. It represents the total height
-           //The units are not important, just keep in mind you must use the same ones you are going to use in all the measurements.
-int Tw = 91;//Total width
-int Mhb = 10;//The height of the black line under the "H"
-int Mwb = 11;//The width of the other black line
-
-int Twh = 76; //Height of the white square
-int Tww = 69; //width of the white square
-int Mhw = 15; //Height of the white "line" under the "H"
-int Mww = 16; //width of the other white "line"
-int Hw = 36; //width of the "H"
-int Hsw = 4; //width of the H's vertical lines
-
-
-int _thresParam1_range = 0; //used for the threshold step
-int _markerWarpSizex = 91*4; //Size of the columns and rows of the Cannonical Marker Image
-int _markerWarpSizey = 96*4; //Size of the columns and rows of the Cannonical Marker Image
-
-
-double _minSize = 0.04; //used to identify candidate markers
-double _maxSize = 0.5; //used to identify candidate markers
-
-float tooNearCandidatesDistance = 10; //Used to remove too near marker candidates.
-
-float markerSizeX = 0.096;
-float markerSizeY = 0.091;
-
 Mat CamMatrix(3, 3, CV_32FC1);
 
 Mat DistMatrix(5,1, CV_32FC1);
 
 Mat Pose;
-
-double _borderDistThres = 0.025; // corners in a border of 2.5% of image  are ignored
-
-bool _useLockedCorners = false;
-
-//TODO Leer estos parámetros desde fichero.
 
 namespace heli{
 
@@ -101,6 +49,7 @@ int HelipadDetector::readParameters()
 
     pugi::xml_node Configuration = doc.child("Configuration");
     std::string readingValue;
+
     // Read values for the Camera Matrix
     readingValue = Configuration.child("CameraMatrix").child_value("at00");
     CamMatrix.at < float > (0, 0) = (float)atof(readingValue.c_str());
@@ -121,6 +70,7 @@ int HelipadDetector::readParameters()
     readingValue = Configuration.child("CameraMatrix").child_value("at22");
     CamMatrix.at < float > (2, 2) = (float)atof(readingValue.c_str());
 
+    // Read values for the Distorsion Coefficients
     readingValue = Configuration.child("DistMatrix").child_value("at0");
     DistMatrix.at < float > (0, 0) = (float)atof(readingValue.c_str());
     readingValue = Configuration.child("DistMatrix").child_value("at1");
@@ -131,6 +81,100 @@ int HelipadDetector::readParameters()
     DistMatrix.at < float > (0, 3) = (float)atof(readingValue.c_str());
     readingValue = Configuration.child("DistMatrix").child_value("at4");
     DistMatrix.at < float > (0, 4) = (float)atof(readingValue.c_str());
+
+    // Read values for the Helipad parameters
+    readingValue = Configuration.child("HelipadParameters").child_value("Th");
+    Th = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Tw");
+    Tw = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Mhb");
+    Mhb = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Mwb");
+    Mwb = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Twh");
+    Twh = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Tww");
+    Tww = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Mhw");
+    Mhw = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Mww");
+    Mww = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Hw");
+    Hw = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("Hsw");
+    Hsw = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("_thresParam1_range");
+    _thresParam1_range = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("_markerWarpSizex");
+    _markerWarpSizex = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("_markerWarpSizey");
+    _markerWarpSizey = (int)atoi(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("_minSize");
+    _minSize = (double)atof(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("_maxSize");
+    _maxSize = (double)atof(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("tooNearCandidatesDistance");
+    tooNearCandidatesDistance = (float)atof(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("markerSizeX");
+    markerSizeX = (float)atof(readingValue.c_str());
+
+    readingValue = Configuration.child("HelipadParameters").child_value("markerSizeY");
+    markerSizeY = (float)atof(readingValue.c_str());
+
+    // Threshold Parameters
+    readingValue = Configuration.child("ThresHoldParameters").child_value("_thresParam1");
+    _thresParam1 = (int)atoi(readingValue.c_str());
+    readingValue = Configuration.child("ThresHoldParameters").child_value("_thresParam2");
+    _thresParam2 = (int)atoi(readingValue.c_str());
+    readingValue = Configuration.child("ThresHoldParameters").child_value("thresMethod");
+    thresMethod = (int)atoi(readingValue.c_str());
+
+    cout << "---------------------" << endl;
+    cout << " Configuration done:" << endl;
+    cout << "---------------------" << endl << endl;
+    cout << "Camera Matrix" << endl << endl;
+    cout << CamMatrix << endl << endl;
+    cout << "Distorsion Coefficients" << endl << endl;
+    cout << DistMatrix << endl << endl;
+    cout << "Helipad Parameters:"<< endl << endl;
+    cout << "Th  = " << Th << endl;
+    cout << "Tw  = " << Tw << endl;
+    cout << "Mhb = " << Mhb << endl;
+    cout << "Mwb = " << Mwb << endl;
+    cout << "Twh = " << Twh << endl;
+    cout << "Tww = " << Tww << endl;
+    cout << "Mhw = " << Mhw << endl;
+    cout << "Mww = " << Mww << endl;
+    cout << "Hw  = " << Hw << endl;
+    cout << "Hsw = " << Hsw << endl << endl;
+    cout << "thresParam1_range = " << _thresParam1_range << endl;
+    cout << "markerWarpSizex   = " << _markerWarpSizex << endl;
+    cout << "markerWarpSizey   = " << _markerWarpSizey << endl;
+    cout << "minSize = " << _minSize << endl;
+    cout << "maxSize = " << _maxSize << endl;
+    cout << "tooNearCandidatesDistance = " << tooNearCandidatesDistance << endl;
+    cout << "markerSizeX = " << markerSizeX << endl;
+    cout << "markerSizeY = " << markerSizeY << endl << endl;
+    cout << "Threshold Parameters:"<< endl << endl;
+    cout << "thresParam1  = " << _thresParam1 << endl;
+    cout << "thresParam2  = " << _thresParam2 << endl;
+    cout << "thresMethod  = " << thresMethod << endl << endl;
 
 }
 
@@ -463,9 +507,11 @@ void HelipadDetector::GetPose(float markerSizeX, float markerSizeY, cv::Mat camM
         return;
     }
 
-    double halfSizeX = markerSizeX / 2.;
+    double halfSizeX = markerSizeX / 2;
     double halfSizeY = markerSizeY / 2;
     Mat ObjPoints(8, 3, CV_32FC1);
+
+    // TODO: Test random points so you get an asymetric image
     ObjPoints.at< float >(0, 0) = -halfSizeX;
     ObjPoints.at< float >(0, 1) = halfSizeY;
     ObjPoints.at< float >(0, 2) = 0;

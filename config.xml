@@ -1,4 +1,5 @@
 <Configuration>
+
 	<CameraMatrix>
 		<at00>689.66032179638808</at00>
 		<at01>0</at01>
@@ -10,6 +11,7 @@
 		<at21>0</at21>
 		<at22>1</at22>
 	</CameraMatrix>	
+
 	<DistMatrix>
 		<at0>0.077515813387338650</at0>
 		<at1>0.28459888465880390</at1>
@@ -17,4 +19,58 @@
 		<at3>0</at3>
 		<at4>-2.5553636828393729</at4>
 	</DistMatrix>
+	
+	<HelipadParameters>
+		This Param must be measured in the real Helipad. It represents the total height
+		The units are not important, just keep in mind you must use the same ones you are going to use in all the measurements.
+		<Th>96</Th>
+		Total width
+		<Tw>91</Tw>
+		The height of the black line under the "H"
+		<Mhb>10</Mhb>
+		The width of the other black line
+		<Mwb>11</Mwb>
+		Height of the white square
+		<Twh>76</Twh>
+		Width of the white square
+		<Tww>69</Tww>
+		Height of the white "line" under the "H"
+		<Mhw>15</Mhw>
+		Width of the other white "line"
+		<Mww>16</Mww>
+		Width of the "H"
+		<Hw>36</Hw>
+		Width of the H's vertical lines
+		<Hsw>4</Hsw>
+		used for the threshold step
+		<_thresParam1_range>0</_thresParam1_range>
+		Size of the columns and rows of the Cannonical Marker Image
+		<_markerWarpSizex>364</_markerWarpSizex>
+		Size of the columns and rows of the Cannonical Marker Image
+		<_markerWarpSizey>384</_markerWarpSizey>
+		Used to identify candidate markers
+		<_minSize>0.04</_minSize>
+		Used to identify candidate markers
+		<_maxSize>0.5</_maxSize>
+		Used to remove too near marker candidates.
+		<tooNearCandidatesDistance>10</tooNearCandidatesDistance>
+		Size of the Helipad
+		<markerSizeX>0.096</markerSizeX>
+		<markerSizeY>0.091</markerSizeY>		
+	</HelipadParameters>
+
+	<ThresHoldParameters>
+		Params for the threshold
+		<_thresParam1>7</_thresParam1>
+		this one is only used in the adaptative threshold.
+		<_thresParam2>7</_thresParam2>
+		Methods:
+			· 1 -> Normal Threshold (Not Recomended)
+			· 2 -> Adaptative Threshold (Recomended)
+			· 3 -> Canny
+		<thresMethod>2</thresMethod>
+	</ThresHoldParameters>
+
 </Configuration>
+
+
